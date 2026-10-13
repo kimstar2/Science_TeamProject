@@ -1,9 +1,8 @@
-using System;
 using _TevLib.ModuleSystem;
-using Members.KJY.Proto.Scripts.System;
+using Members.KJY.Scripts.System;
 using UnityEngine;
 
-namespace Members.KJY.Proto.Scripts.Agents.Player
+namespace Members.KJY.Scripts.Agents.Player
 {
     public class ProtoPlayer : ModuleOwner
     {
@@ -26,6 +25,7 @@ namespace Members.KJY.Proto.Scripts.Agents.Player
 
         private void OnEnable()
         {
+            PlayerInput.SetEnable();
             PlayerInput.OnMoveInput += HandleMoveInput;
         }
 

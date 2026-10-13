@@ -1,9 +1,10 @@
-﻿using System;
+﻿using _TevLib.ModuleSystem;
 using UnityEngine;
 
-namespace Members.KJY.Proto.Scripts.Agents
+namespace Members.KJY.Scripts.Agents
 {
-    public class AgentAnimator : MonoBehaviour
+    [RequireComponent(typeof(Animator), typeof(SpriteRenderer))]
+    public class AgentAnimator : MonoModule
     {
         private Animator _animator;
         private readonly int _xDirHash = Animator.StringToHash("xDir");

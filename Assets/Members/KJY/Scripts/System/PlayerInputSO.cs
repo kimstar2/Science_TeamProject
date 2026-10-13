@@ -1,9 +1,8 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using NotImplementedException = System.NotImplementedException;
 
-namespace Members.KJY.Proto.Scripts.System
+namespace Members.KJY.Scripts.System
 {
     [CreateAssetMenu(fileName = "Player Input Data", menuName = "KJY/System/PlayerInput Data", order = 0)]
     public class PlayerInputSO : ScriptableObject , Controls.IPlayerActions
@@ -29,8 +28,10 @@ namespace Members.KJY.Proto.Scripts.System
         public event Action<float> OnMoveInput;
         
         #region Callbacks
-        public void OnMove(InputAction.CallbackContext context) 
-            => OnMoveInput?.Invoke(context.ReadValue<Vector2>().x);
+        public void OnMove(InputAction.CallbackContext context)
+        {
+            OnMoveInput?.Invoke(context.ReadValue<Vector2>().x);
+        }
 
         public void OnLook(InputAction.CallbackContext context)
         {

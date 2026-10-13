@@ -1,9 +1,9 @@
-﻿using System;
+﻿using _TevLib.ModuleSystem;
 using UnityEngine;
 
-namespace Members.KJY.Proto.Scripts.Agents
+namespace Members.KJY.Scripts.Agents
 {
-    public class AgentMover : MonoBehaviour
+    public class AgentMover : MonoModule
     {
         [field:SerializeField] public Rigidbody2D RigidCompo {get; private set;}
         
@@ -16,11 +16,9 @@ namespace Members.KJY.Proto.Scripts.Agents
         public float Speed
         {
             get => m_speed;
-            set
+            private set
             {
-                if (value < 0f)
-                    return;
-                m_speed = Mathf.Min(maxSpeed);
+                m_speed = Mathf.Clamp(value,0f,maxSpeed);
             }
         }
             
