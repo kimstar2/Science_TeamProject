@@ -1,3 +1,17 @@
 ﻿<Solution>
+  <Project Path="NaughtyAttributes.Test.csproj" />
+  <Project Path="NaughtyAttributes.Core.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="NaughtyAttributes.Editor.csproj" />
+  <Project Path="SoundSystemEditor_assembly.csproj" />
+  <Project Path="FsmRuntime_assembly.csproj" />
+  <Project Path="ModuleSystem_assembly.csproj" />
+  <Project Path="PropertyAttribute_assembly.csproj" />
+  <Project Path="Assembly-CSharp-firstpass.csproj" />
+  <Project Path="FeedbackSystem_assembly.csproj" />
+  <Project Path="FsmSystemEditor_assembly.csproj" />
+  <Project Path="ServiceLocatorSystem_assembly.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="SoundSystem_assembly.csproj" />
+  <Project Path="HashDataSystem_assembly.csproj" />
 </Solution>
