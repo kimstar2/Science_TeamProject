@@ -1,25 +1,24 @@
 ﻿using _TevLib.ModuleSystem;
 using UnityEngine;
+using NotImplementedException = System.NotImplementedException;
 
 namespace Members.KJY.Scripts.Agents
 {
-    public class AgentMover : MonoModule
+    public class AgentMover : MonoModule , IMoveable
     {
-        [field:SerializeField] public Rigidbody2D RigidCompo {get; private set;}
+        [field:SerializeField] public Rigidbody2D RbCompo {get; private set;}
         
         [Header("Speed Settings")]
         [SerializeField] private float defaultSpeed;
         [SerializeField] private float maxSpeed;
         private float _xMoveInput;
-
+        private float _yMoveInput;
+        
         private float m_speed;
         public float Speed
         {
             get => m_speed;
-            private set
-            {
-                m_speed = Mathf.Clamp(value,0f,maxSpeed);
-            }
+            private set => m_speed = Mathf.Clamp(value,0f,maxSpeed);
         }
             
         private void Awake() 
@@ -27,11 +26,17 @@ namespace Members.KJY.Scripts.Agents
 
         private void FixedUpdate()
         {
-            RigidCompo.linearVelocityX = _xMoveInput * Speed;
+            RbCompo.linearVelocityX = _xMoveInput * Speed;
         }
-        
+
         public void SetXMoveInput(float xMoveInput) 
             => _xMoveInput = xMoveInput;
+
+        public void StopImmediately()
+        {
+            SetXMoveInput(0f);
+            RbCompo.linearVelocityX = 0f;
+        }
 
         public void SetSpeed(float speed)
         {

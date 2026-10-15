@@ -44,6 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2770f03b236c48db84182d83021ec8af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Members.KJY.Proto.Scripts.Agents.AgentMover
-  <RigidCompo>k__BackingField: {fileID: 0}
+  <RbCompo>k__BackingField: {fileID: 0}
   defaultSpeed: 8
   maxSpeed: 20

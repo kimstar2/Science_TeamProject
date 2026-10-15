@@ -30,7 +30,7 @@ namespace _TevLib.ModuleSystem
                 afterInitModule.AfterInit();
         }
 
-        public T GetModule<T>()
+        public T GetModule<T>(object who)
         {
             if (_moduleDict.TryGetValue(typeof(T), out IModule module))
                 return (T) module;
@@ -40,6 +40,7 @@ namespace _TevLib.ModuleSystem
             if (findModule is T casted)
                 return casted;
             
+            Debug.Assert(findModule != null, $"[{who.GetType().Name}] FindModule is null");
             return default;
         }
     }

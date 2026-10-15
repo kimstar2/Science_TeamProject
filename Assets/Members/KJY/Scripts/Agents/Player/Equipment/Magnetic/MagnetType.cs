@@ -1,4 +1,4 @@
-﻿namespace Members.KJY.Scripts.Equipment.Magnet
+﻿namespace Members.KJY.Scripts.Agents.Player.Equipment.Magnetic
 {
     public enum MagnetType
     {
