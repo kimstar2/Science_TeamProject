@@ -6,37 +6,43 @@ using Members.KJY.Scripts.Objects;
 using Members.KJY.Scripts.Utils;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.Events;
 using ZLinq;
 
 namespace Members.KJY.Scripts.Agents.Player.Equipment.Magnetic
 {
     public class HandMagnet : MonoModule
     {
+        [field:SerializeField] public MagnetState CurrentState { get; private set; }
+        
         [field:Header("Target Setting")]
         [field:HorizontalLine(color:EColor.Gray)] // <- 이거는 그냥 인스펙터에 선 띄워주는 용도
         [field:SerializeField] public ContactFilter2D ContactFilter { get; private set; }
         [SerializeField] private int defaultCount;
-        private Collider2D[] _results; // 구조체길래 사용함
+        private Collider2D[] _results;
         private int _count;
         
-        [Header("Magnet Settings")]
+        [field:Header("Magnet Setting")]
         [field:HorizontalLine(color:EColor.Gray)]
-        [SerializeField] private Transform magnetPivot;
-        [SerializeField] private int defaultPullForce;
-        [SerializeField] private int defaultPushForce;
+        [field:SerializeField] public Transform MagnetPivot { get; private set; }
+        [SerializeField] private float defaultPullForce;
+        [SerializeField] private float defaultPushForce;
         [SerializeField] private float radius = 0.5f;
         
-        [Header("Render Settings")]
-        [field:HorizontalLine(color:EColor.Gray)]
-        [field:SerializeField] public MonoRenderer Renderer;
-        [SerializeField] private Color pullColor = Color.red;
-        [SerializeField] private Color pushColor = Color.blue;
+        [field: Header("Event Setting")]
+        [field: HorizontalLine(color: EColor.Gray)]
+        [SerializeField] public UnityEvent<bool> onPullEvent;
+        [SerializeField] public UnityEvent<bool> onPushEvent;
+        [SerializeField] public UnityEvent onNoneEvent;
         
-        private readonly List<IMagnetable> _magnetable = new();
+        
+        private readonly List<IMagnetable> _magnetableList = new();
         
         private Vector2 _direction;
         private float _pullForce;
         private float _pushForce;
+
+        public bool IsClicked { get; private set; }
         
         public override void Init(ModuleOwner owner)
         {
@@ -46,7 +52,24 @@ namespace Members.KJY.Scripts.Agents.Player.Equipment.Magnetic
             _count = defaultCount;
             _results = new Collider2D[defaultCount];
         }
-        
+
+        private void Update()
+        {
+            DetectMagnetable();
+            foreach (var magnetable in _magnetableList)
+            {
+                switch (CurrentState)
+                {
+                    case MagnetState.Pull:
+                        magnetable.Pull(this, _pullForce);
+                        break;
+                    case MagnetState.Push:
+                        magnetable.Push(transform.position,_direction, _pushForce);
+                        break;
+                }
+            }
+        }
+
         public void SetDirection(Vector2 worldPos)
         {
             Vector2 dir = (Vector3)worldPos - transform.position;
@@ -54,63 +77,69 @@ namespace Members.KJY.Scripts.Agents.Player.Equipment.Magnetic
         }
 
         public void SetState(MagnetState state, bool isClicked)
-        {   
+        {
+            if (CurrentState != state && GetClicked(CurrentState)) return;
+
+            IsClicked = isClicked;
+            CurrentState = !isClicked ? MagnetState.None : state;
+            
             switch (state)
             {
-                case MagnetState.None:
-                default:
-                    return;
-                
                 case MagnetState.Pull:
                     Pull(isClicked);
                     break;
                 case MagnetState.Push:
-                    PushLogic(isClicked);
+                    Push(isClicked);
                     break;
             }
         }
 
         private void Pull(bool isClicked)
         {
-            Renderer.SetColor(isClicked ? pullColor : Color.white);
-
-            foreach (var magnetable in GetMagnetable())
-                magnetable.Pull(transform, _pullForce, isClicked);
+            if (isClicked)
+                onPullEvent?.Invoke(true);
+            else
+                onNoneEvent?.Invoke();
         }
 
-        private void PushLogic(bool isClicked)
+        private void Push(bool isClicked)
         {
-            Renderer.SetColor(isClicked ? pushColor : Color.white);
-            
-            if (!isClicked) return;
-            
-            foreach (var magnetable in GetMagnetable())
-            {
-                if (magnetable.IsPulling) continue;
-                magnetable.Push(_direction, _pushForce);
-            }
+            if (isClicked)
+                onPushEvent?.Invoke(true);
+            else
+                onNoneEvent?.Invoke();
         }
 
         #region Helper
 
-        private IMagnetable[] GetMagnetable()
+        private void DetectMagnetable()
         {
-            _magnetable.Clear();
+            _magnetableList.Clear();
             for (int i = 0; i < DetectObjects(); i++)
             {
                 if (_results[i].TryGetComponent(out IMagnetable magnetable))
-                    _magnetable.Add(magnetable);
+                    _magnetableList.Add(magnetable);
             }
-            return _magnetable.AsValueEnumerable().ToArray();
         }
 
         private int DetectObjects()
         {
-            _count = Physics2D.OverlapCircle(magnetPivot.position, radius, ContactFilter, _results);
+            _count = Physics2D.OverlapCircle(MagnetPivot.position, radius, ContactFilter, _results);
             return _count;
         }
 
+        public bool GetClicked(MagnetState state) => CurrentState == state && IsClicked;
+
         #endregion
 
+        #if UNITY_EDITOR
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.gray;
+            Gizmos.DrawWireSphere(MagnetPivot.position, radius);
+        }
+
+#endif
     }
 }

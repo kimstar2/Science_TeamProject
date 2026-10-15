@@ -2,6 +2,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Members.KJY.Scripts.Agents.Player.Equipment.Magnetic;
 using Members.KJY.Scripts.Utils;
 using UnityEngine;
 
@@ -9,56 +10,69 @@ namespace Members.KJY.Scripts.Objects
 {
     public class MagnetableObject : MonoBehaviour , IMagnetable
     {
-        [SerializeField] private Transform originParent;
-        [SerializeField] private float pullForce = 0.05f;
-        [SerializeField] private float pullOffRange;
+        [field:SerializeField] public MagnetablePropertySO MagnetableProp { get; private set; }
+        private MagnetablePropertySO MProp => MagnetableProp;
+        private HandMagnet _PullMagnet;
+        
         
         private Rigidbody2D _rigidCompo;
-        private float _originGravity;
-
-        private CancellationTokenSource _moveCts;
-        private Transform _targetTrm;
-        private float _currentForce;
+        private float _crtGravity;
+        private float _defaultGravity;
         
-        public bool IsPulling {get; private set;}
+        private float _currentForce;
 
         private void Awake()
         {
             _rigidCompo = GetComponent<Rigidbody2D>();
-            _originGravity = _rigidCompo.gravityScale;
+            _defaultGravity = _rigidCompo.gravityScale;
         }
 
-        public void Pull(Transform targetTrm, float force , bool isClicked)
-        {
-            _currentForce = force;
-            IsPulling = isClicked;
-            
-            _targetTrm = IsPulling ? targetTrm : null;
-        }
-
-        private void PullLogic()
-        {
-            if (!IsPulling) return;
-            Vector2 dir = _targetTrm.position - transform.position;
-            
-            if (dir.sqrMagnitude > pullOffRange * pullOffRange)
-            {
-                IsPulling = false;
-                return;
-            }
-            
-            Vector2 crtVelocity = _rigidCompo.linearVelocity;
-            _rigidCompo.linearVelocity = Vector2.MoveTowards(crtVelocity,dir.normalized * _currentForce/_rigidCompo.mass, pullForce * Time.fixedDeltaTime);
-        }
-        
         private void FixedUpdate()
         {
             PullLogic();
         }
-
-        public void Push(Vector2 direction, float force)
+        
+        public void Pull(HandMagnet magnet, float force)
         {
-            _rigidCompo.AddForce(direction * force, ForceMode2D.Impulse);
+            _currentForce = force;
+            _PullMagnet = magnet;
+        }
+
+        private void PullLogic()
+        {
+            if (_PullMagnet is { IsClicked: true } and { CurrentState: MagnetState.Pull })
+            {
+                Vector2 dir = _PullMagnet.MagnetPivot.position - transform.position;
+                if (dir.sqrMagnitude > MProp.PullOffRange * MProp.PullOffRange)
+                {
+                    _PullMagnet = null;
+                    SetGravity(_defaultGravity);
+                    return;
+                }
+            
+                SetGravity();
+                Vector2 crtVelocity = _rigidCompo.linearVelocity;
+                Vector2 targetVel = dir.normalized * (_currentForce * (dir.sqrMagnitude + MProp.PullInstability));
+                _rigidCompo.linearVelocity = Vector2.MoveTowards(crtVelocity,targetVel, MProp.PullForce * Time.fixedDeltaTime);
+            }
+            else
+            {
+                _PullMagnet = null;
+                SetGravity(_defaultGravity);
+            }
+        }
+
+        private void SetGravity(float g = 0f)
+        {
+            if (Mathf.Approximately(g, _crtGravity)) return;
+            _crtGravity = g;
+            _rigidCompo.gravityScale = _crtGravity;
+        }
+
+        public void Push(Vector3 magnetPos,Vector2 direction, float force)
+        {
+            float magnitude = magnetPos.magnitude;
+            _rigidCompo.AddForce(direction * Mathf.Min(force / magnitude,MProp.MaxPushForce), ForceMode2D.Impulse);
         }
     }
 }

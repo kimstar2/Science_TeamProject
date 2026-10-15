@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Cinemachine;
+using UnityEngine;
 
 namespace Members.KJY.Scripts.Objects
 {
@@ -6,7 +7,7 @@ namespace Members.KJY.Scripts.Objects
     {
         [field:SerializeField] public Transform BaseTransform { get; private set; }
         [field:SerializeField] public Transform TargetTransform {get; private set;}
-        [SerializeField] private float maxRange;
+        [MinMaxRangeSlider(0f,1f),SerializeField] private Vector2 minmaxRange;
 
         public void SetAngle(float angle) 
             => TargetTransform.eulerAngles = Vector3.forward * angle;
@@ -24,13 +25,21 @@ namespace Members.KJY.Scripts.Objects
             Vector2 dir = (Vector3)direction - BaseTransform.position;
             SetDirection(dir);
 
-            if (dir.sqrMagnitude > maxRange * maxRange)
+            Vector2 rangedDir = dir.normalized;
+            if (dir.sqrMagnitude < minmaxRange.x * minmaxRange.x)
             {
-                Vector2 rangedDir = dir.normalized;
-                rangedDir *= maxRange;
+                rangedDir *= minmaxRange.x;
                 TargetTransform.localPosition = rangedDir;
                 return;
             }
+            
+            if (dir.sqrMagnitude > minmaxRange.y * minmaxRange.y)
+            {
+                rangedDir *= minmaxRange.y;
+                TargetTransform.localPosition = rangedDir;
+                return;
+            }
+            
             TargetTransform.position = direction;
         }
     }

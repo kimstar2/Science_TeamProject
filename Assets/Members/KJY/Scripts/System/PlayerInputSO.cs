@@ -47,6 +47,7 @@ namespace Members.KJY.Scripts.System
         {
             if (context.performed)
                 OnClicked?.Invoke(true, MouseButton.Left);
+
             if (context.canceled)
                 OnClicked?.Invoke(false, MouseButton.Left);
         }
@@ -55,6 +56,7 @@ namespace Members.KJY.Scripts.System
         {
             if (context.performed)
                 OnClicked?.Invoke(true, MouseButton.Right);
+
             if (context.canceled)
                 OnClicked?.Invoke(false, MouseButton.Right);
         }

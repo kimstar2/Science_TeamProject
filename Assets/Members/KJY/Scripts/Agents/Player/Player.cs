@@ -10,10 +10,9 @@ using UnityEngine.XR;
 
 namespace Members.KJY.Scripts.Agents.Player
 {
-    public class ProtoPlayer : ModuleOwner
+    public class Player : ModuleOwner
     {
         [field: SerializeField] public PlayerInputSO PlayerInput { get; private set; }
-        [field: ShowNonSerializedField] public MagnetState CurrentMagnetType { get; private set; }
         
         private IRotatable[] rotateObjects;
         
@@ -21,11 +20,12 @@ namespace Members.KJY.Scripts.Agents.Player
         
         public Camera MainCam { get; private set; }
         
-        public AgentAnimator AgentAnimator {get; private set;} // 나중에 인터페이스로 대체
         public IMoveable AgentMover {get; private set;}
+        public AgentAnimator AgentAnimator {get; private set;} // 나중에 인터페이스로 대체
         public IJumpable AgentJumper {get; private set;}
+        public IManyJumpable AgentManyJumper {get; private set;}
+        public IGroundChecker GroundChecker {get; private set;}
         public HandMagnet HandMagnet {get; private set;}
-        
         
         #endregion
         
@@ -35,8 +35,10 @@ namespace Members.KJY.Scripts.Agents.Player
             
             MainCam = Camera.main;
             AgentMover = GetModule<IMoveable>(this);
-            AgentJumper = GetModule<IJumpable>(this);
             AgentAnimator = GetModule<AgentAnimator>(this);
+            AgentJumper = GetModule<IJumpable>(this);
+            AgentManyJumper = GetModule<IManyJumpable>(this);
+            GroundChecker = GetModule<IGroundChecker>(this);
             HandMagnet = GetModule<HandMagnet>(this);
 
             rotateObjects = GetComponentsInChildren<IRotatable>();
@@ -55,6 +57,8 @@ namespace Members.KJY.Scripts.Agents.Player
             PlayerInput.OnMoveInput += HandleMoveInput;
             PlayerInput.OnJumpInput += HandleJumpInput;
             PlayerInput.OnClicked += HandleClicked;
+
+            GroundChecker.IsGrounded.OnValueChanged += HandleIsGroundChanged;
         }
 
         private void OnDisable()
@@ -63,6 +67,8 @@ namespace Members.KJY.Scripts.Agents.Player
             PlayerInput.OnMoveInput -= HandleMoveInput;
             PlayerInput.OnJumpInput -= HandleJumpInput;
             PlayerInput.OnClicked -= HandleClicked;
+            
+            GroundChecker.IsGrounded.OnValueChanged -= HandleIsGroundChanged;
         }
         
         #region Handles
@@ -73,6 +79,12 @@ namespace Members.KJY.Scripts.Agents.Player
         private void HandleJumpInput() 
             => AgentJumper.Jump();
         
+        private void HandleIsGroundChanged(bool prev, bool next)
+        {
+            if (!prev && next)
+                AgentManyJumper.ResetCrtJump();
+        }
+
         private void RotateToPointer(Vector2 worldPos) 
         {
             foreach (IRotatable rotatable in rotateObjects)
@@ -81,19 +93,16 @@ namespace Members.KJY.Scripts.Agents.Player
         
         private void HandleClicked(bool isClicked,MouseButton button)
         {
-            CurrentMagnetType = button switch
+            var magnetState = button switch
             {
                 MouseButton.Left => MagnetState.Push,
                 MouseButton.Right => MagnetState.Pull,
                 _ => MagnetState.None
             };
             
-            HandMagnet.SetState(CurrentMagnetType,isClicked);
+            HandMagnet.SetState(magnetState,isClicked);
         }
 
         #endregion
-        
-        
-        
     }
 }

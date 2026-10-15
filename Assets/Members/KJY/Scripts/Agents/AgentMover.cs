@@ -8,7 +8,7 @@ namespace Members.KJY.Scripts.Agents
     {
         [field:SerializeField] public Rigidbody2D RbCompo {get; private set;}
         
-        [Header("Speed Settings")]
+        [Header("Speed Setting")]
         [SerializeField] private float defaultSpeed;
         [SerializeField] private float maxSpeed;
         private float _xMoveInput;
