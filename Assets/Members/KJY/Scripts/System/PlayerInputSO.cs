@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 namespace Members.KJY.Scripts.System
 {
@@ -26,6 +27,10 @@ namespace Members.KJY.Scripts.System
         #endregion
         
         public event Action<float> OnMoveInput;
+        public event Action<bool,MouseButton> OnClicked;
+        public event Action OnJumpInput;
+        public Vector2 PointerInput {get; private set;}
+        
         
         #region Callbacks
         public void OnMove(InputAction.CallbackContext context)
@@ -33,46 +38,32 @@ namespace Members.KJY.Scripts.System
             OnMoveInput?.Invoke(context.ReadValue<Vector2>().x);
         }
 
-        public void OnLook(InputAction.CallbackContext context)
+        public void OnPointer(InputAction.CallbackContext context)
         {
-            
+            PointerInput =context.ReadValue<Vector2>();
         }
 
-        public void OnAttack(InputAction.CallbackContext context)
+        public void OnLeftClick(InputAction.CallbackContext context)
         {
-            
+            if (context.performed)
+                OnClicked?.Invoke(true, MouseButton.Left);
+            if (context.canceled)
+                OnClicked?.Invoke(false, MouseButton.Left);
         }
 
-        public void OnInteract(InputAction.CallbackContext context)
+        public void OnRightClick(InputAction.CallbackContext context)
         {
-            
-        }
-
-        public void OnCrouch(InputAction.CallbackContext context)
-        {
-            
+            if (context.performed)
+                OnClicked?.Invoke(true, MouseButton.Right);
+            if (context.canceled)
+                OnClicked?.Invoke(false, MouseButton.Right);
         }
 
         public void OnJump(InputAction.CallbackContext context)
         {
-            
+            if (context.performed)
+                OnJumpInput?.Invoke();
         }
-
-        public void OnPrevious(InputAction.CallbackContext context)
-        {
-            
-        }
-
-        public void OnNext(InputAction.CallbackContext context)
-        {
-            
-        }
-
-        public void OnSprint(InputAction.CallbackContext context)
-        {
-            
-        }
-        
         #endregion
     }
 }

@@ -7,7 +7,6 @@ namespace Members.KJY.Scripts.Agents
     public class AgentAnimator : MonoModule
     {
         private Animator _animator;
-        private readonly int _xDirHash = Animator.StringToHash("xDir");
 
         private void Awake()
         {
