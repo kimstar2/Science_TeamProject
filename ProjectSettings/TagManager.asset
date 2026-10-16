@@ -8,11 +8,11 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Ground
   - Water
   - UI
   - Magnetable Object
-  - 
+  - Triggerable Object
   - 
   - 
   - 
@@ -40,6 +40,18 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Back VFX
+    uniqueID: 3389558751
+    locked: 0
+  - name: Object
+    uniqueID: 573314851
+    locked: 0
+  - name: Obstacle
+    uniqueID: 2409010159
+    locked: 0
+  - name: Front VFX
+    uniqueID: 3098204671
     locked: 0
   m_RenderingLayers:
   - Default
