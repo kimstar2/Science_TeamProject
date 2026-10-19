@@ -12,10 +12,10 @@ namespace Members.KJY.Scripts.Objects
     {
         [field:SerializeField] public MagnetablePropertySO MagnetableProp { get; private set; }
         private MagnetablePropertySO MProp => MagnetableProp;
-        private HandMagnet _PullMagnet;
+        private IMagnet _pullMagnet;
         
         
-        private Rigidbody2D _rigidCompo;
+        public Rigidbody2D RigidCompo { get; private set; }
         private float _crtGravity;
         private float _defaultGravity;
         
@@ -23,8 +23,8 @@ namespace Members.KJY.Scripts.Objects
 
         private void Awake()
         {
-            _rigidCompo = GetComponent<Rigidbody2D>();
-            _defaultGravity = _rigidCompo.gravityScale;
+            RigidCompo = GetComponent<Rigidbody2D>();
+            _defaultGravity = RigidCompo.gravityScale;
         }
 
         private void FixedUpdate()
@@ -32,32 +32,32 @@ namespace Members.KJY.Scripts.Objects
             PullLogic();
         }
         
-        public void Pull(HandMagnet magnet, float force)
+        public void Pull(IMagnet magnet, float force)
         {
             _currentForce = force;
-            _PullMagnet = magnet;
+            _pullMagnet = magnet;
         }
 
         private void PullLogic()
         {
-            if (_PullMagnet is { IsClicked: true } and { CurrentState: MagnetState.Pull })
+            if (_pullMagnet is { IsClicked: true } and { CurrentState: MagnetState.Pull })
             {
-                Vector2 dir = _PullMagnet.MagnetPivot.position - transform.position;
+                Vector2 dir = _pullMagnet.MagnetPivot.position - transform.position;
                 if (dir.sqrMagnitude > MProp.PullOffRange * MProp.PullOffRange)
                 {
-                    _PullMagnet = null;
+                    _pullMagnet = null;
                     SetGravity(_defaultGravity);
                     return;
                 }
             
                 SetGravity();
-                Vector2 crtVelocity = _rigidCompo.linearVelocity;
+                Vector2 crtVelocity = RigidCompo.linearVelocity;
                 Vector2 targetVel = dir.normalized * (_currentForce * (dir.sqrMagnitude + MProp.PullInstability));
-                _rigidCompo.linearVelocity = Vector2.MoveTowards(crtVelocity,targetVel, MProp.PullForce * Time.fixedDeltaTime);
+                RigidCompo.linearVelocity = Vector2.MoveTowards(crtVelocity,targetVel, MProp.PullForce * Time.fixedDeltaTime);
             }
             else
             {
-                _PullMagnet = null;
+                _pullMagnet = null;
                 SetGravity(_defaultGravity);
             }
         }
@@ -66,13 +66,13 @@ namespace Members.KJY.Scripts.Objects
         {
             if (Mathf.Approximately(g, _crtGravity)) return;
             _crtGravity = g;
-            _rigidCompo.gravityScale = _crtGravity;
+            RigidCompo.gravityScale = _crtGravity;
         }
 
         public void Push(Vector3 magnetPos,Vector2 direction, float force)
         {
             float magnitude = magnetPos.magnitude;
-            _rigidCompo.AddForce(direction * Mathf.Min(force / magnitude,MProp.MaxPushForce), ForceMode2D.Impulse);
+            RigidCompo.AddForce(direction * Mathf.Min(force / magnitude,MProp.MaxPushForce), ForceMode2D.Impulse);
         }
     }
 }

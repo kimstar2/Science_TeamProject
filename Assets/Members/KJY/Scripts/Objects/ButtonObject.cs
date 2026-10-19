@@ -18,6 +18,13 @@ namespace Members.KJY.Scripts.Objects
         [SerializeField] private bool autoExit;
         [SerializeField] private UnityEvent onButton;
         [SerializeField] private UnityEvent offButton;
+        public Collider2D Collider { get; private set; }
+
+        private void Awake()
+        {
+            Collider = GetComponent<Collider2D>();
+        }
+
         public void EnterTrigger() 
             => OnButton();
 
@@ -40,5 +47,14 @@ namespace Members.KJY.Scripts.Objects
 
         private void OnDestroy() 
             => transform.DOKill();
+        
+        public event Action<ITriggerable> OnExit;
+        private void OnTriggerExit2D(Collider2D other) 
+            => OnExit?.Invoke(this);
+
+        private void OnCollisionEnter2D(Collision2D other)
+            => OnExit?.Invoke(this);
+
+
     }
 }

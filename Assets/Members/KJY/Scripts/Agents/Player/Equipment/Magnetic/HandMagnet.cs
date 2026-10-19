@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using _TevLib.ModuleSystem;
 using Members.KJY.Scripts.Objects;
+using Members.KJY.Scripts.Objects.Overlap;
 using Members.KJY.Scripts.Utils;
 using NaughtyAttributes;
 using UnityEngine;
@@ -11,23 +12,15 @@ using ZLinq;
 
 namespace Members.KJY.Scripts.Agents.Player.Equipment.Magnetic
 {
-    public class HandMagnet : MonoModule
+    public class HandMagnet : CircleCaster , IMagnet , IModule
     {
         [field:SerializeField] public MagnetState CurrentState { get; private set; }
-        
-        [field:Header("Target Setting")]
-        [field:HorizontalLine(color:EColor.Gray)] // <- 이거는 그냥 인스펙터에 선 띄워주는 용도
-        [field:SerializeField] public ContactFilter2D ContactFilter { get; private set; }
-        [SerializeField] private int defaultCount;
-        private Collider2D[] _results;
-        private int _count;
         
         [field:Header("Magnet Setting")]
         [field:HorizontalLine(color:EColor.Gray)]
         [field:SerializeField] public Transform MagnetPivot { get; private set; }
         [SerializeField] private float defaultPullForce;
         [SerializeField] private float defaultPushForce;
-        [SerializeField] private float radius = 0.5f;
         
         [field: Header("Event Setting")]
         [field: HorizontalLine(color: EColor.Gray)]
@@ -35,39 +28,17 @@ namespace Members.KJY.Scripts.Agents.Player.Equipment.Magnetic
         [SerializeField] public UnityEvent<bool> onPushEvent;
         [SerializeField] public UnityEvent onNoneEvent;
         
-        
-        private readonly List<IMagnetable> _magnetableList = new();
-        
         private Vector2 _direction;
         private float _pullForce;
         private float _pushForce;
 
         public bool IsClicked { get; private set; }
-        
-        public override void Init(ModuleOwner owner)
+
+        protected override void Init()
         {
-            base.Init(owner);
+            base.Init();
             _pullForce = defaultPullForce;
             _pushForce = defaultPushForce;
-            _count = defaultCount;
-            _results = new Collider2D[defaultCount];
-        }
-
-        private void Update()
-        {
-            DetectMagnetable();
-            foreach (var magnetable in _magnetableList)
-            {
-                switch (CurrentState)
-                {
-                    case MagnetState.Pull:
-                        magnetable.Pull(this, _pullForce);
-                        break;
-                    case MagnetState.Push:
-                        magnetable.Push(transform.position,_direction, _pushForce);
-                        break;
-                }
-            }
         }
 
         public void SetDirection(Vector2 worldPos)
@@ -112,22 +83,24 @@ namespace Members.KJY.Scripts.Agents.Player.Equipment.Magnetic
 
         #region Helper
 
-        private void DetectMagnetable()
+        public override void Cast()
         {
-            _magnetableList.Clear();
-            for (int i = 0; i < DetectObjects(); i++)
+            base.Cast();
+            for (int i = 0; i < Count; i++)
             {
-                if (_results[i].TryGetComponent(out IMagnetable magnetable))
-                    _magnetableList.Add(magnetable);
-            }
+                if (results[i].TryGetComponent(out IMagnetable magnetable))
+                    switch (CurrentState)
+                    {
+                        case MagnetState.Pull:
+                            magnetable.Pull(this, _pullForce);
+                            break;
+                        case MagnetState.Push:
+                            magnetable.Push(transform.position,_direction, _pushForce);
+                            break;
+                    }
+            }   
         }
-
-        private int DetectObjects()
-        {
-            _count = Physics2D.OverlapCircle(MagnetPivot.position, radius, ContactFilter, _results);
-            return _count;
-        }
-
+        
         public bool GetClicked(MagnetState state) => CurrentState == state && IsClicked;
 
         #endregion
@@ -137,7 +110,7 @@ namespace Members.KJY.Scripts.Agents.Player.Equipment.Magnetic
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.gray;
-            Gizmos.DrawWireSphere(MagnetPivot.position, radius);
+            Gizmos.DrawWireSphere(targetTransform.position, radius);
         }
 
 #endif

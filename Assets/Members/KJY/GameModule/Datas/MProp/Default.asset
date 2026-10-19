@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Default
   m_EditorClassIdentifier: Assembly-CSharp::Members.KJY.Scripts.Objects.MagnetablePropertySO
   <PullInstability>k__BackingField: 0.25
-  <PullForce>k__BackingField: 125
+  <PullForce>k__BackingField: 250
   <PullOffRange>k__BackingField: 3
   <MaxPushForce>k__BackingField: 0.5
