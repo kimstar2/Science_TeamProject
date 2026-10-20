@@ -88,19 +88,21 @@ namespace Members.KJY.Scripts.Agents.Player.Equipment.Magnetic
             base.Cast();
             for (int i = 0; i < Count; i++)
             {
-                if (results[i].TryGetComponent(out IMagnetable magnetable))
-                    switch (CurrentState)
-                    {
-                        case MagnetState.Pull:
-                            magnetable.Pull(this, _pullForce);
-                            break;
-                        case MagnetState.Push:
-                            magnetable.Push(transform.position,_direction, _pushForce);
-                            break;
-                    }
-            }   
+
+                if (!results[i].TryGetComponent(out IMagnetable magnetable)) continue;
+
+                switch (CurrentState)
+                {
+                    case MagnetState.Pull:
+                        magnetable.Pull(this, _pullForce);
+                        break;
+                    case MagnetState.Push:
+                        magnetable.Push(transform.position, _direction, _pushForce);
+                        break;
+                }
+            }
         }
-        
+
         public bool GetClicked(MagnetState state) => CurrentState == state && IsClicked;
 
         #endregion
