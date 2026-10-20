@@ -13,6 +13,7 @@ namespace Members.KJY.Scripts.Objects
         [field:SerializeField] public MagnetablePropertySO MagnetableProp { get; private set; }
         private MagnetablePropertySO MProp => MagnetableProp;
         private IMagnet _pullMagnet;
+        private float _beforeSqrDistance;
         
         
         public Rigidbody2D RigidCompo { get; private set; }
@@ -43,25 +44,34 @@ namespace Members.KJY.Scripts.Objects
             if (_pullMagnet is { IsClicked: true } and { CurrentState: MagnetState.Pull })
             {
                 Vector2 dir = _pullMagnet.MagnetPivot.position - transform.position;
-                if (dir.sqrMagnitude > MProp.PullOffRange * MProp.PullOffRange)
+                float distanceDiff = dir.sqrMagnitude - _beforeSqrDistance;
+                distanceDiff = Mathf.Abs(distanceDiff);
+
+
+                if (dir.sqrMagnitude > MProp.PullOffRange * MProp.PullOffRange || distanceDiff > MProp.PullCorrectRange * MProp.PullCorrectRange)
                 {
-                    _pullMagnet = null;
-                    SetGravity(_defaultGravity);
+                    OutPull();
                     return;
                 }
-            
+
                 SetGravity();
                 Vector2 crtVelocity = RigidCompo.linearVelocity;
-                Vector2 targetVel = dir.normalized * (_currentForce * (dir.sqrMagnitude + MProp.PullInstability));
-                RigidCompo.linearVelocity = Vector2.MoveTowards(crtVelocity,targetVel, MProp.PullForce * Time.fixedDeltaTime);
+                Vector2 targetVel = dir.normalized * (_currentForce * (dir.sqrMagnitude + MProp.PullInstability)) /
+                                    MProp.PullStability;
+                RigidCompo.linearVelocity =
+                    Vector2.MoveTowards(crtVelocity, targetVel, MProp.PullForce * Time.fixedDeltaTime);
+                _beforeSqrDistance = dir.sqrMagnitude;
             }
             else
-            {
-                _pullMagnet = null;
-                SetGravity(_defaultGravity);
-            }
+                OutPull();
         }
 
+        public void OutPull()
+        {
+            _pullMagnet = null;
+            SetGravity(_defaultGravity);
+        }
+        
         private void SetGravity(float g = 0f)
         {
             if (Mathf.Approximately(g, _crtGravity)) return;
