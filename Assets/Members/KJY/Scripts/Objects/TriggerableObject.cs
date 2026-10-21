@@ -13,6 +13,7 @@ namespace Members.KJY.Scripts.Objects
         [HorizontalLine(color: EColor.Gray)] 
         public UnityEvent onEnter;
         public UnityEvent onExit;
+        public bool IsEntered { get; private set; }
 
 
         private void Awake()
@@ -22,11 +23,13 @@ namespace Members.KJY.Scripts.Objects
 
         public void EnterTrigger()
         {
+            IsEntered = true;
             onEnter?.Invoke();
         }
 
         public void ExitTrigger()
         {
+            IsEntered = false;
             onExit?.Invoke();
         }
     }

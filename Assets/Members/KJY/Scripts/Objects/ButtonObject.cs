@@ -1,4 +1,4 @@
-using System;
+    using System;
 using _TevLib.Extension.DoT;
 using DG.Tweening;
 using NaughtyAttributes;
@@ -7,46 +7,49 @@ using UnityEngine.Events;
 
 namespace Members.KJY.Scripts.Objects
 {
-    public class ButtonObject : MonoBehaviour , ITriggerable
+    public class ButtonObject : AbstractTrigger
     {
+        [SerializeField] private Transform targetTransform;
         [Header("Dest Setting")]
         [HorizontalLine(color: EColor.Gray)] 
         [SerializeField] private Vector3 moveLocal;
         [SerializeField] private TweenStep step;
 
         [Header("Button Setting")] [HorizontalLine(color: EColor.Gray)] 
+        [SerializeField] private bool useExit;
         [SerializeField] private bool autoExit;
         [SerializeField] private UnityEvent onButton;
         [SerializeField] private UnityEvent offButton;
-        public Collider2D Collider { get; private set; }
-
-        private void Awake()
+        public override void EnterTrigger()
         {
-            Collider = GetComponent<Collider2D>();
+            base.EnterTrigger();
+            OnButton();
         }
-
-        public void EnterTrigger() 
-            => OnButton();
 
         private void OnButton()
         {
-            transform.DOKill();
-            transform.DOLocalMove(moveLocal, step.Duration).
-                SetEase(step.EaseType).OnComplete(autoExit ? OffButton : () => {});
+            targetTransform.DOKill();
+            targetTransform.DOLocalMove(moveLocal, step.Duration).
+                SetEase(step.EaseType).OnComplete(autoExit && useExit ? OffButton : () => {});
             onButton?.Invoke();
         }
 
-        public void ExitTrigger() { }
+        public override void ExitTrigger()
+        {
+            base.ExitTrigger();
+            if (!useExit) return;
+            OffButton();
+        }
 
         private void OffButton()
         {
-            transform.DOKill();
-            transform.DOLocalMove(Vector3.zero, step.Duration).SetEase(step.EaseType);
+            targetTransform.DOKill();
+            targetTransform.DOLocalMove(Vector3.zero, step.Duration).SetEase(step.EaseType);
             offButton?.Invoke();
         }
 
         private void OnDestroy() 
-            => transform.DOKill();
+            => targetTransform.DOKill();
         
         public event Action<ITriggerable> OnExit;
         private void OnTriggerExit2D(Collider2D other) 
