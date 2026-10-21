@@ -29,6 +29,7 @@ namespace Members.KJY.Scripts.System
         public event Action<float> OnMoveInput;
         public event Action<bool,MouseButton> OnClicked;
         public event Action OnJumpInput;
+        public event Action OnInteractInput;
         public Vector2 PointerInput {get; private set;}
         
         
@@ -66,6 +67,14 @@ namespace Members.KJY.Scripts.System
             if (context.performed)
                 OnJumpInput?.Invoke();
         }
+
+        public void OnInteract(InputAction.CallbackContext context)
+        {
+            if (context.performed)
+                OnInteractInput?.Invoke();
+        }
+
+
         #endregion
     }
 }

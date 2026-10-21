@@ -15,7 +15,7 @@ TagManager:
   - Triggerable Object
   - Agent
   - NoObject
-  - 
+  - Interactable Object
   - 
   - 
   - 
@@ -43,6 +43,12 @@ TagManager:
     locked: 0
   - name: Back VFX
     uniqueID: 3389558751
+    locked: 0
+  - name: Back Object
+    uniqueID: 3370655735
+    locked: 0
+  - name: Agent
+    uniqueID: 86041435
     locked: 0
   - name: Object
     uniqueID: 573314851

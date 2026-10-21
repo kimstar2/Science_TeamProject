@@ -14,6 +14,7 @@ namespace Members.KJY.Scripts.Agents.Player
     {
         [field: SerializeField] public PlayerInputSO PlayerInput { get; private set; }
         
+        private IInteractable _lastInteractable;
         private IRotatable[] rotateObjects;
         
         #region Components 
@@ -25,6 +26,7 @@ namespace Members.KJY.Scripts.Agents.Player
         public IJumpable AgentJumper {get; private set;}
         public IManyJumpable AgentManyJumper {get; private set;}
         public IGroundChecker GroundChecker {get; private set;}
+        public ObjectTriggerer Triggerer {get; private set;}
         public HandMagnet HandMagnet {get; private set;}
         
         #endregion
@@ -40,6 +42,7 @@ namespace Members.KJY.Scripts.Agents.Player
             AgentManyJumper = GetModule<IManyJumpable>(this);
             GroundChecker = GetModule<IGroundChecker>(this);
             HandMagnet = GetModule<HandMagnet>(this);
+            Triggerer = GetModule<ObjectTriggerer>(this);
 
             rotateObjects = GetComponentsInChildren<IRotatable>();
         }
@@ -56,21 +59,29 @@ namespace Members.KJY.Scripts.Agents.Player
             PlayerInput.SetEnable();
             PlayerInput.OnMoveInput += HandleMoveInput;
             PlayerInput.OnJumpInput += HandleJumpInput;
+            PlayerInput.OnInteractInput += HandleInteractInput;
             PlayerInput.OnClicked += HandleClicked;
+
+            Triggerer.OnTriggerEnter += HandleTriggerEnter;
+            Triggerer.OnTriggerExit += HandleTriggerExit;
 
             GroundChecker.IsGrounded.OnValueChanged += HandleIsGroundChanged;
         }
-
         private void OnDisable()
         {
             PlayerInput.SetDisable();
             PlayerInput.OnMoveInput -= HandleMoveInput;
             PlayerInput.OnJumpInput -= HandleJumpInput;
+            PlayerInput.OnInteractInput -= HandleInteractInput;
             PlayerInput.OnClicked -= HandleClicked;
+            
+            Triggerer.OnTriggerEnter -= HandleTriggerEnter;
+            Triggerer.OnTriggerExit -= HandleTriggerExit;
             
             GroundChecker.IsGrounded.OnValueChanged -= HandleIsGroundChanged;
         }
-        
+
+
         #region Handles
         
         private void HandleMoveInput(float xInput) 
@@ -78,6 +89,16 @@ namespace Members.KJY.Scripts.Agents.Player
         
         private void HandleJumpInput() 
             => AgentJumper.Jump();
+
+        private void HandleInteractInput()
+        {
+            if (_lastInteractable != null)
+            {
+                _lastInteractable.Interact();
+                Debug.Log("Interacted");
+            }
+
+        }
         
         private void HandleIsGroundChanged(bool prev, bool next)
         {
@@ -103,6 +124,18 @@ namespace Members.KJY.Scripts.Agents.Player
             HandMagnet.SetState(magnetState,isClicked);
         }
 
+        private void HandleTriggerEnter(ITriggerable trig)
+        {
+            if (trig.Collider.gameObject.TryGetComponent(out IInteractable interactable))
+                _lastInteractable = interactable;
+        }
+        
+        private void HandleTriggerExit(ITriggerable trig)
+        {
+            if (_lastInteractable?.Collider != trig?.Collider) return;
+            _lastInteractable = null;
+        }
+        
         #endregion
     }
 }
