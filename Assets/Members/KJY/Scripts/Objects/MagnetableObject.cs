@@ -82,7 +82,7 @@ namespace Members.KJY.Scripts.Objects
         public void Push(Vector3 magnetPos,Vector2 direction, float force)
         {
             float magnitude = magnetPos.magnitude;
-            RigidCompo.AddForce(direction * Mathf.Min(force / magnitude,MProp.MaxPushForce), ForceMode2D.Impulse);
+            RigidCompo.AddForce(direction * Mathf.Min(force , magnitude,MProp.MaxPushForce), ForceMode2D.Impulse);
         }
     }
 }

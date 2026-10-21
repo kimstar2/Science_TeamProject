@@ -15,20 +15,34 @@ namespace Members.KJY.Scripts.Objects
         [HorizontalLine(color: EColor.Gray)]
         [SerializeField] private LayerMask targetLayer;
 
+        private Collider2D _collider;
+        
+        private void Awake()
+        {
+            _collider = GetComponent<Collider2D>();
+        }
+
+        public event Action<ITriggerable> OnTriggerEnter;
+        public event Action<ITriggerable> OnTriggerExit;
+        
+        
         private void OnTriggerEnter2D(Collider2D other)
         {
             if ((other.callbackLayers.value & targetLayer.value) == 0) return;
-            
-            if (other.TryGetComponent(out ITriggerable trigger))
-                trigger.EnterTrigger();
+            if (!other.TryGetComponent(out ITriggerable trigger)) return;
+            if (trigger.Collider.transform == _collider.transform) return;
+            OnTriggerEnter?.Invoke(trigger);
+            trigger.EnterTrigger();
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
             if ((other.callbackLayers.value & targetLayer.value) == 0) return;
+            if (!other.TryGetComponent(out ITriggerable trigger)) return;
+            if (trigger.Collider.transform == _collider.transform) return;
             
-            if (other.TryGetComponent(out ITriggerable trigger))
-                trigger.ExitTrigger();
+            OnTriggerExit?.Invoke(trigger);
+            trigger.ExitTrigger();
         }
     }
 }
