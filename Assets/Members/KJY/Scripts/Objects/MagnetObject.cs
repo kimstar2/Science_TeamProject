@@ -2,6 +2,7 @@
 using Members.KJY.Scripts.Objects.Overlap;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.Events;
 using NotImplementedException = System.NotImplementedException;
 
 namespace Members.KJY.Scripts.Objects
@@ -14,6 +15,8 @@ namespace Members.KJY.Scripts.Objects
         [field:SerializeField] public Transform MagnetPivot { get; private set; }
         [SerializeField] private float defaultPullForce;
         [SerializeField] private float defaultPushForce;
+        public UnityEvent onPull;
+        public UnityEvent onPush;
 
         public bool IsClicked { get; private set; } = true;
 
@@ -44,10 +47,12 @@ namespace Members.KJY.Scripts.Objects
                     switch (CurrentState)
                     {
                         case MagnetState.Pull:
+                            onPull?.Invoke();
                             magnetable.Pull(this, defaultPullForce);
                             break;
                         case MagnetState.Push:
                             Vector2 direction = results[i].transform.position - transform.position;
+                            onPush?.Invoke();
                             magnetable.Push(transform.position,direction.normalized, defaultPushForce);
                             break;
                     }

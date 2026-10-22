@@ -10,7 +10,7 @@ using UnityEngine.XR;
 
 namespace Members.KJY.Scripts.Agents.Player
 {
-    public class Player : ModuleOwner
+    public class Player : ModuleOwner , IMagnetableBase
     {
         [field: SerializeField] public PlayerInputSO PlayerInput { get; private set; }
         
