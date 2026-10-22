@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - NoMagnet
+  - Clear
   layers:
   - Default
   - TransparentFX
@@ -16,8 +18,8 @@ TagManager:
   - Agent
   - NoObject
   - Interactable Object
-  - 
-  - 
+  - NoPlayer Object
+  - NoMagnetObject
   - 
   - 
   - 

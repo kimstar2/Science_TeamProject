@@ -6,6 +6,7 @@ using Members.KJY.Scripts.System;
 using NaughtyAttributes;
 using UnityEngine;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.UI;
 using UnityEngine.XR;
 
 namespace Members.KJY.Scripts.Agents.Player
@@ -13,10 +14,13 @@ namespace Members.KJY.Scripts.Agents.Player
     public class Player : ModuleOwner , IMagnetableBase
     {
         [field: SerializeField] public PlayerInputSO PlayerInput { get; private set; }
+        [SerializeField] private LayerMask noMagnetLayer;
+        [SerializeField] private Image clearPanel;
         
         private IInteractable _lastInteractable;
         private IRotatable[] rotateObjects;
-        
+        private bool _canUseMagnet = true;
+
         #region Components 
         
         public Camera MainCam { get; private set; }
@@ -114,6 +118,7 @@ namespace Members.KJY.Scripts.Agents.Player
         
         private void HandleClicked(bool isClicked,MouseButton button)
         {
+            if (!_canUseMagnet) return;
             var magnetState = button switch
             {
                 MouseButton.Left => MagnetState.Push,
@@ -137,5 +142,21 @@ namespace Members.KJY.Scripts.Agents.Player
         }
         
         #endregion
+
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            if (other.CompareTag("Clear"))
+                clearPanel.gameObject.SetActive(true);
+            
+            if (!other.CompareTag("NoMagnet")) return;
+            HandMagnet.SetState(HandMagnet.CurrentState,false);
+            _canUseMagnet = false;
+        }
+
+        private void OnTriggerExit2D(Collider2D other)
+        {
+            if (!other.CompareTag("NoMagnet")) return;
+            _canUseMagnet = true;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
@@ -29,6 +30,19 @@ namespace Members.KJY.Scripts.Objects
                     onDown?.Invoke();
             }
 
+            private void OnTriggerEnter2D(Collider2D other)
+            {
+                if (!other.TryGetComponent<IMagnetableBase>(out _))
+                    return;
+
+                Rigidbody2D rb = other.attachedRigidbody;
+
+                if (rb == null)
+                    return;
+
+                rb.linearVelocityY = 0f;
+            }
+
             private void OnTriggerStay2D(Collider2D other)
             {
                 if (!other.TryGetComponent<IMagnetableBase>(out _))
@@ -42,7 +56,7 @@ namespace Members.KJY.Scripts.Objects
                 rb.WakeUp();
 
                 Vector2 direction = _isUp ? Vector2.up : Vector2.down;
-                
+
                 rb.AddForce(direction * _force);
         }
     }
