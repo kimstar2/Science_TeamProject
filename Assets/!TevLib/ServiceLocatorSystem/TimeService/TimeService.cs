@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using _TevLib.Editor.PropertyAttribute;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -9,10 +8,10 @@ namespace _TevLib.ServiceLocatorSystem.TimeService
 {
     public class TimeService : MonoBehaviour, ITimeService, ITickService
     {
-        [field: SerializeField, Header("Time System"), ReadOnly] public float GameTime { get; private set; }
+        [field: SerializeField, Header("Time System")] public float GameTime { get; private set; }
         [field: SerializeField , Header("Tick System")] public float SecondTick { get; private set; }
-        [field: SerializeField, ReadOnly] public float TimeTick { get; private set; }
-        [field: SerializeField, ReadOnly] public int TickCount { get; private set; }
+        [field: SerializeField] public float TimeTick { get; private set; }
+        [field: SerializeField] public int TickCount { get; private set; }
 
         private float _baseFixedDeltaTime;
         public UnityEvent<int> onHour;
