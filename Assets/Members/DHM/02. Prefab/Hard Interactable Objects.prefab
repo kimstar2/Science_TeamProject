@@ -974,7 +974,7 @@ MonoBehaviour:
     <Duration>k__BackingField: 1.5
     <IsRandomizeValue>k__BackingField: 0
     <UsingFastBeyond>k__BackingField: 0
-    <MinTransformValue>k__BackingField: {x: 0, y: 2, z: 0}
+    <MinTransformValue>k__BackingField: {x: 0, y: 4, z: 0}
     <MaxTransformValue>k__BackingField: {x: 0, y: 0, z: 0}
     <FadeValue>k__BackingField: 0
     <ColorValue>k__BackingField: {r: 0, g: 0, b: 0, a: 0}
@@ -1457,7 +1457,7 @@ MonoBehaviour:
     <Duration>k__BackingField: 1.5
     <IsRandomizeValue>k__BackingField: 0
     <UsingFastBeyond>k__BackingField: 0
-    <MinTransformValue>k__BackingField: {x: 0, y: 2, z: 0}
+    <MinTransformValue>k__BackingField: {x: 0, y: 4, z: 0}
     <MaxTransformValue>k__BackingField: {x: 0, y: 0, z: 0}
     <FadeValue>k__BackingField: 0
     <ColorValue>k__BackingField: {r: 0, g: 0, b: 0, a: 0}
@@ -1848,6 +1848,7 @@ MonoBehaviour:
   buttons:
   - {fileID: 2482495599286947011}
   - {fileID: 2824003157762046615}
+  onlyOnce: 0
   allTrue:
     m_PersistentCalls:
       m_Calls:
